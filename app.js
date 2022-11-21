@@ -1,6 +1,9 @@
 var express = require('express');
 var path = require('path');
+var alert = require('alert');
 var app = express();
+
+
 const uri = "mongodb://127.0.0.1:27017";
 
 
@@ -31,12 +34,14 @@ function loginUser(user, res) {
             res.render("home.ejs");
           } else {
             console.log("wrong pass");
-            //throw error for wromng pass;
+            alert("wrong pass");
+            //throw error for wrong pass;
           }
         }
       });
       if (inDB == false) {
-        console.log("user is not defined,login")
+        console.log("user is not defined,login");
+        alert("user is not defined,login");
         //throw error for not being registered
       }
     });
@@ -46,27 +51,34 @@ function insertIntoDB(req, res) {
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
     var db = client.db("NetworksDB");
-
-    var user = {
-      username: req.body.username,
-      password: req.body.password,
-      want_to_go: []
-    }
-    db.collection("users").find().toArray((err, results) => {
-      if (err) throw err;
-      var inDB = false
-      results.forEach((result) => {
-        if (result.username == user.username) {
-          console.log("user is already defined,register")
-          //throw error 
-          inDB = true;
+    if(req.body.username==''){
+      alert("username field is empty");
+    }else if(req.body.password==''){
+      alert("password field is empty");
+    }else{
+      var user = {
+        username: req.body.username,
+        password: req.body.password,
+        want_to_go: []
+      }
+      db.collection("users").find().toArray((err, results) => {
+        if (err) throw err;
+        var inDB = false
+        results.forEach((result) => {
+          if (result.username == user.username) {
+            console.log("user is already defined,register");
+            //throw error 
+            alert("user is already defined,register");
+            inDB = true;
+          }
+        });
+        if (inDB == false) {
+          alert("registration is successful");
+          db.collection("users").insertOne(user);
+          res.redirect("/");
         }
       });
-      if (inDB == false) {
-        db.collection("users").insertOne(user);
-        res.redirect("/");
-      }
-    });
+    } 
   });
 }
 //Login page:
