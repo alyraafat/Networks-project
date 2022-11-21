@@ -1,9 +1,10 @@
 var express = require('express');
 var path = require('path');
 var alert = require('alert');
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
+
 var app = express();
-
-
 const uri = "mongodb://127.0.0.1:27017";
 
 
@@ -15,11 +16,19 @@ app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+app.use(
+  session({
+    resave:true,
+    saveUninitialized:true,
+    secret:"secret"
+  })
+);
 
 //useful functions:
 var MongoClient = require('mongodb').MongoClient
 
-function loginUser(user, res) {
+function loginUser(user, res,req) {
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
     var db = client.db("NetworksDB");
@@ -31,6 +40,8 @@ function loginUser(user, res) {
           inDB = true;
           console.log("user is already defined,login")
           if (result.password == user.password) {
+            req.session.user = result;
+            req.session.save();
             res.render("home.ejs");
           } else {
             console.log("wrong pass");
@@ -89,7 +100,7 @@ app.get('/', (req, res) => {
 
 //check the user's credentials
 app.post('/', (req, res) => {
-  loginUser(req.body, res);
+  loginUser(req.body, res,req);
 })
 
 //---------------------------------------------------------
@@ -109,7 +120,7 @@ app.post('/register', (req, res) => {
 
 // WANT_TO_GO page:
 app.get('/wanttogo', (req, res) => {
-  res.render("wanttogo.ejs")
+  res.render("wanttogo.ejs",{data:req.session.user.want_to_go})
 })
 
 //----------------------------------------------------------
