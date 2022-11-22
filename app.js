@@ -25,10 +25,10 @@ app.use(
     secret:"secret"
   })
 );
-
+const dest = ["paris","bali","annapurna","inca","rome","santorini"];
+const nav = ["/paris","/bali","/annapurna","/inca","/rome","/santorini"];
 //useful functions:
 var MongoClient = require('mongodb').MongoClient;
-
 function loginUser(user, res,req) {
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
@@ -113,6 +113,18 @@ function updateUserWantToGo(req,destination){
       // req.session.user = db.collection("users").findOne({username:req.session.user.username});
     }
   })
+}
+
+function searches(x){
+  var temp = [];
+
+  for(var i=0;i<dest.length;i++){
+    if(dest[i].includes(x.toLowerCase()))
+      temp.push(dest[i]);  
+  }
+  if(temp.length==0)
+    alert("not found");
+  return temp;
 }
 
 
@@ -207,9 +219,13 @@ app.get('/santorini', (req, res) => {
 
 //----------------------------------------------------------
 //Search page:
-
+app.get('/search',(req,res)=>{
+  res.render('searchresults.ejs');
+})
 app.post('/search', (req, res) => {
-  res.redirect("searchresults.ejs")
+  var x = req.body.Search;
+  var temp =searches(x);
+  res.render("searchresults.ejs",{dests:temp})
 });
 
 //----------------------------------------------------------
