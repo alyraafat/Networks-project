@@ -13,6 +13,13 @@
             text-align: center;
             -webkit-text-stroke: 1px blue;
         }
+        .container {
+            position: fixed;
+            color: white;
+            width: 150px;
+            text-align: justify;
+            text-justify: inter-word;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +46,7 @@
         </div>
     </nav>
     <div>
-        <ul>
+        <ul class="container">
             <% for(var i=0; i < data.length; i++) { %>
                <li><%= data[i] %></li>
             <% } %>
