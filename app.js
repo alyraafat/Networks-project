@@ -1,6 +1,7 @@
 var express = require('express');
 var path = require('path');
 var alert = require('alert');
+var url = require('url');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
 
@@ -95,13 +96,21 @@ function insertIntoDB(req, res) {
 
 function updateUserWantToGo(req,destination){
   MongoClient.connect(uri, (err, client) => {
+    console.log("yay1");
     if (err) throw err;
     var db = client.db("NetworksDB");
-    var user = req.session.user
-    if(user.want_to_go.includes(destination)){
-      alert(destination + " is already in your wan_to_go list");
+    console.log(req.session.user);
+    if(req.session.user.want_to_go.includes(destination)){
+      alert(destination + " is already in your want_to_go list");
     }else{
-      db.collection("users").updateOne({username:user.username},{want_to_go:user.want_to_go.push(destination)});
+      console.log("yay");
+      req.session.user.want_to_go.push(destination);
+      db.collection("users").updateOne({username:req.session.user.username},{$set:{want_to_go:req.session.user.want_to_go}});
+      db.collection("users").findOne({username:req.session.user.username},(err,data)=>{
+        req.session.user = data;
+        req.session.save();
+      });
+      // req.session.user = db.collection("users").findOne({username:req.session.user.username});
     }
   })
 }
@@ -165,6 +174,7 @@ app.get('/islands', (req, res) => {
 //1-Hiking destinations:
 //1a- get inca page
 app.get('/inca', (req, res) => {
+  //  console.log(url.parse('http://localhost:3000/inca',true).pathname.split("/")[1]);
   res.render("inca.ejs")
 });
 
@@ -205,10 +215,11 @@ app.post('/search', (req, res) => {
 //----------------------------------------------------------
 // Add to want_to_go list
 // add inca
-// app.post('/inca', (req, res) => {
-//   updateUserWantToGo(req,"inca");
-//   // res.render("inca.ejs");
-// });
+app.post('/inca', (req, res) => {
+  console.log("post");
+  updateUserWantToGo(req,"inca");
+  res.redirect("/inca");
+});
 
 
 app.listen(3000);
