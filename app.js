@@ -26,7 +26,7 @@ app.use(
 );
 
 //useful functions:
-var MongoClient = require('mongodb').MongoClient
+var MongoClient = require('mongodb').MongoClient;
 
 function loginUser(user, res,req) {
   MongoClient.connect(uri, (err, client) => {
@@ -41,7 +41,6 @@ function loginUser(user, res,req) {
           console.log("user is already defined,login")
           if (result.password == user.password) {
             req.session.user = result;
-            req.session.save();
             res.render("home.ejs");
           } else {
             console.log("wrong pass");
@@ -57,7 +56,8 @@ function loginUser(user, res,req) {
       }
     });
   });
-}
+};
+
 function insertIntoDB(req, res) {
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
@@ -91,17 +91,32 @@ function insertIntoDB(req, res) {
       });
     } 
   });
+};
+
+function updateUserWantToGo(req,destination){
+  MongoClient.connect(uri, (err, client) => {
+    if (err) throw err;
+    var db = client.db("NetworksDB");
+    var user = req.session.user
+    if(user.want_to_go.includes(destination)){
+      alert(destination + " is already in your wan_to_go list");
+    }else{
+      db.collection("users").updateOne({username:user.username},{want_to_go:user.want_to_go.push(destination)});
+    }
+  })
 }
+
+
 //Login page:
 //get the login page
 app.get('/', (req, res) => {
   res.render("login.ejs")
-})
+});
 
 //check the user's credentials
 app.post('/', (req, res) => {
   loginUser(req.body, res,req);
-})
+});
 
 //---------------------------------------------------------
 
@@ -109,19 +124,22 @@ app.post('/', (req, res) => {
 // go to register page
 app.get('/registration', (req, res) => {
   res.render("registration.ejs")
-})
+});
 
 // register the user
 app.post('/register', (req, res) => {
   insertIntoDB(req, res);
-})
+});
 
 //----------------------------------------------------------
 
 // WANT_TO_GO page:
 app.get('/wanttogo', (req, res) => {
+  console.log(req.session);
+  console.log(req.cookies);
+  console.log("----------------");
   res.render("wanttogo.ejs",{data:req.session.user.want_to_go})
-})
+});
 
 //----------------------------------------------------------
 
@@ -129,17 +147,17 @@ app.get('/wanttogo', (req, res) => {
 // 1-get hiking page when clicking on view button under hiking photo
 app.get('/hiking', (req, res) => {
   res.render("hiking.ejs")
-})
+});
 
 // 2-get cities page when clicking on view button under cities photo
 app.get('/cities', (req, res) => {
   res.render("cities.ejs")
-})
+});
 
 // 3-get islands page when clicking on view button under islands photo
 app.get('/islands', (req, res) => {
   res.render("islands.ejs")
-})
+});
 
 //----------------------------------------------------------
 
@@ -148,33 +166,49 @@ app.get('/islands', (req, res) => {
 //1a- get inca page
 app.get('/inca', (req, res) => {
   res.render("inca.ejs")
-})
+});
 
-//1b- get inca page
+//1b- get annapurna page
 app.get('/annapurna', (req, res) => {
   res.render("annapurna.ejs")
-})
+});
 
 //2-Cities destinations:
 //2a- get inca page
 app.get('/paris', (req, res) => {
   res.render("paris.ejs")
-})
+});
 
-//2b- get inca page
+//2b- get rome page
 app.get('/rome', (req, res) => {
   res.render("rome.ejs")
-})
+});
 
 //3-Islands destinations:
-//3a- get inca page
+//3a- get bali page
 app.get('/bali', (req, res) => {
   res.render("bali.ejs")
-})
+});
 
-//3b- get inca page
+//3b- get santorini page
 app.get('/santorini', (req, res) => {
   res.render("santorini.ejs")
-})
+});
+
+//----------------------------------------------------------
+//Search page:
+
+app.post('/search', (req, res) => {
+  res.redirect("searchresults.ejs")
+});
+
+//----------------------------------------------------------
+// Add to want_to_go list
+// add inca
+// app.post('/inca', (req, res) => {
+//   updateUserWantToGo(req,"inca");
+//   // res.render("inca.ejs");
+// });
+
 
 app.listen(3000);
