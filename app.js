@@ -221,5 +221,42 @@ app.post('/inca', (req, res) => {
   res.redirect("/inca");
 });
 
+// add inca
+app.post('/inca', (req, res) => {
+  updateUserWantToGo(req,"inca");
+  res.redirect("/inca");
+});
+
+// add annapurna
+app.post('/annapurna', (req, res) => {
+  updateUserWantToGo(req,"annapurna");
+  res.redirect("/annapurna");
+});
+
+// add paris
+app.post('/paris', (req, res) => {
+  updateUserWantToGo(req,"paris");
+  res.redirect("/paris");
+});
+
+// add rome
+app.post('/rome', (req, res) => {
+  updateUserWantToGo(req,"rome");
+  res.redirect("/rome");
+});
+
+// add bali
+app.post('/bali', (req, res) => {
+  updateUserWantToGo(req,"bali");
+  res.redirect("/bali");
+});
+
+// add santorini
+app.post('/santorini', (req, res) => {
+  updateUserWantToGo(req,"santorini");
+  res.redirect("/santorini");
+});
+
+
 
 app.listen(3000);
