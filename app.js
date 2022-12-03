@@ -42,7 +42,7 @@ function loginUser(user, res,req) {
           console.log("user is already defined,login")
           if (result.password == user.password) {
             req.session.user = result;
-            res.render("home.ejs");
+            res.redirect("/home");
           } else {
             console.log("wrong pass");
             alert("wrong pass");
@@ -127,10 +127,19 @@ function searches(x){
   return temp;
 }
 
+function isAuthenticated(req,res,next){
+  if(req.session.user) return next();
+  else res.redirect("/");
+}
+
 
 //Login page:
 //get the login page
 app.get('/', (req, res) => {
+  if(req.session.user){
+    //console.log(req.session);
+    delete req.session.user;
+  }
   res.render("login.ejs")
 });
 
@@ -143,19 +152,25 @@ app.post('/', (req, res) => {
 
 //Register page:
 // go to register page
-app.get('/registration', (req, res) => {
+app.get('/registration',isAuthenticated, (req, res) => {
   res.render("registration.ejs")
 });
 
 // register the user
-app.post('/register', (req, res) => {
+app.post('/register',(req, res) => {
   insertIntoDB(req, res);
+});
+
+//----------------------------------------------------------
+// Home page:
+app.get('/home', isAuthenticated,(req, res) => {
+  res.render("home.ejs")
 });
 
 //----------------------------------------------------------
 
 // WANT_TO_GO page:
-app.get('/wanttogo', (req, res) => {
+app.get('/wanttogo',isAuthenticated, (req, res) => {
   console.log(req.session);
   console.log(req.cookies);
   console.log("----------------");
@@ -166,17 +181,17 @@ app.get('/wanttogo', (req, res) => {
 
 // CATEGORIES: 
 // 1-get hiking page when clicking on view button under hiking photo
-app.get('/hiking', (req, res) => {
+app.get('/hiking', isAuthenticated,(req, res) => {
   res.render("hiking.ejs")
 });
 
 // 2-get cities page when clicking on view button under cities photo
-app.get('/cities', (req, res) => {
+app.get('/cities',isAuthenticated, (req, res) => {
   res.render("cities.ejs")
 });
 
 // 3-get islands page when clicking on view button under islands photo
-app.get('/islands', (req, res) => {
+app.get('/islands',isAuthenticated, (req, res) => {
   res.render("islands.ejs")
 });
 
@@ -185,41 +200,41 @@ app.get('/islands', (req, res) => {
 // DESTINATIONS:
 //1-Hiking destinations:
 //1a- get inca page
-app.get('/inca', (req, res) => {
+app.get('/inca', isAuthenticated,(req, res) => {
   //  console.log(url.parse('http://localhost:3000/inca',true).pathname.split("/")[1]);
   res.render("inca.ejs")
 });
 
 //1b- get annapurna page
-app.get('/annapurna', (req, res) => {
+app.get('/annapurna', isAuthenticated,(req, res) => {
   res.render("annapurna.ejs")
 });
 
 //2-Cities destinations:
 //2a- get inca page
-app.get('/paris', (req, res) => {
+app.get('/paris', isAuthenticated,(req, res) => {
   res.render("paris.ejs")
 });
 
 //2b- get rome page
-app.get('/rome', (req, res) => {
+app.get('/rome', isAuthenticated,(req, res) => {
   res.render("rome.ejs")
 });
 
 //3-Islands destinations:
 //3a- get bali page
-app.get('/bali', (req, res) => {
+app.get('/bali', isAuthenticated,(req, res) => {
   res.render("bali.ejs")
 });
 
 //3b- get santorini page
-app.get('/santorini', (req, res) => {
+app.get('/santorini', isAuthenticated,(req, res) => {
   res.render("santorini.ejs")
 });
 
 //----------------------------------------------------------
 //Search page:
-app.get('/search',(req,res)=>{
+app.get('/search',isAuthenticated,(req,res)=>{
   res.render('searchresults.ejs');
 })
 app.post('/search', (req, res) => {
