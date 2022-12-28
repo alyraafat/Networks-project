@@ -20,6 +20,10 @@
             text-align: justify;
             text-justify: inter-word;
         }
+
+        .div-ul {
+            margin-left: 15px;
+        }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +49,7 @@
             </form>
         </div>
     </nav>
-    <div>
+    <div class="div-ul">
         <ul class="container">
             <% for(var i=0; i < data.length; i++) { %>
                <li><%= data[i] %></li>

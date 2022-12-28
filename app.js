@@ -25,8 +25,8 @@ app.use(
     secret:"secret"
   })
 );
-const dest = ["paris","bali","annapurna","inca","rome","santorini"];
-const nav = ["/paris","/bali","/annapurna","/inca","/rome","/santorini"];
+const destUrl = ["paris","bali","annapurna","inca","rome","santorini"];
+const destName = ["Paris","Bali Island","Annapurna Circuit","Inca Trail to Machu Picchu","Rome","Santorini Island"];
 //useful functions:
 var MongoClient = require('mongodb').MongoClient;
 function loginUser(user, res,req) {
@@ -39,20 +39,17 @@ function loginUser(user, res,req) {
       results.forEach((result) => {
         if (result.username == user.username) {
           inDB = true;
-          console.log("user is already defined,login")
           if (result.password == user.password) {
             req.session.user = result;
             res.redirect("/home");
           } else {
-            console.log("wrong pass");
             alert("wrong pass");
             //throw error for wrong pass;
           }
         }
       });
       if (inDB == false) {
-        console.log("user is not defined,login");
-        alert("user is not defined,login");
+        alert("user is not defined");
         //throw error for not being registered
       }
     });
@@ -78,9 +75,8 @@ function insertIntoDB(req, res) {
         var inDB = false
         results.forEach((result) => {
           if (result.username == user.username) {
-            console.log("user is already defined,register");
             //throw error 
-            alert("user is already defined,register");
+            alert("user is already defined");
             inDB = true;
           }
         });
@@ -96,14 +92,11 @@ function insertIntoDB(req, res) {
 
 function updateUserWantToGo(req,destination){
   MongoClient.connect(uri, (err, client) => {
-    console.log("yay1");
     if (err) throw err;
     var db = client.db("NetworksDB");
-    console.log(req.session.user);
     if(req.session.user.want_to_go.includes(destination)){
       alert(destination + " is already in your want_to_go list");
     }else{
-      console.log("yay");
       req.session.user.want_to_go.push(destination);
       db.collection("users").updateOne({username:req.session.user.username},{$set:{want_to_go:req.session.user.want_to_go}});
       db.collection("users").findOne({username:req.session.user.username},(err,data)=>{
@@ -118,9 +111,9 @@ function updateUserWantToGo(req,destination){
 function searches(x){
   var temp = [];
 
-  for(var i=0;i<dest.length;i++){
-    if(dest[i].includes(x.toLowerCase()))
-      temp.push(dest[i]);  
+  for(var i=0;i<destName.length;i++){
+    if(destName[i].includes(x.toLowerCase()))
+      temp.push(destName[i]);  
   }
   if(temp.length==0)
     alert("not found");
@@ -137,7 +130,6 @@ function isAuthenticated(req,res,next){
 //get the login page
 app.get('/', (req, res) => {
   if(req.session.user){
-    //console.log(req.session);
     delete req.session.user;
   }
   res.render("login.ejs")
@@ -152,7 +144,7 @@ app.post('/', (req, res) => {
 
 //Register page:
 // go to register page
-app.get('/registration',isAuthenticated, (req, res) => {
+app.get('/registration', (req, res) => {
   res.render("registration.ejs")
 });
 
@@ -171,9 +163,6 @@ app.get('/home', isAuthenticated,(req, res) => {
 
 // WANT_TO_GO page:
 app.get('/wanttogo',isAuthenticated, (req, res) => {
-  console.log(req.session);
-  console.log(req.cookies);
-  console.log("----------------");
   res.render("wanttogo.ejs",{data:req.session.user.want_to_go})
 });
 
@@ -201,7 +190,6 @@ app.get('/islands',isAuthenticated, (req, res) => {
 //1-Hiking destinations:
 //1a- get inca page
 app.get('/inca', isAuthenticated,(req, res) => {
-  //  console.log(url.parse('http://localhost:3000/inca',true).pathname.split("/")[1]);
   res.render("inca.ejs")
 });
 
@@ -240,54 +228,45 @@ app.get('/search',isAuthenticated,(req,res)=>{
 app.post('/search', (req, res) => {
   var x = req.body.Search;
   var temp =searches(x);
-  res.render("searchresults.ejs",{dests:temp})
+  res.render("searchresults.ejs",{dests:temp,du:destUrl})
 });
 
 //----------------------------------------------------------
 // Add to want_to_go list
 // add inca
 app.post('/inca', (req, res) => {
-  console.log("post");
-  updateUserWantToGo(req,"inca");
-  res.redirect("/inca");
-});
-
-// add inca
-app.post('/inca', (req, res) => {
-  updateUserWantToGo(req,"inca");
+  updateUserWantToGo(req,"Inca Trail to Machu Picchu");
   res.redirect("/inca");
 });
 
 // add annapurna
 app.post('/annapurna', (req, res) => {
-  updateUserWantToGo(req,"annapurna");
+  updateUserWantToGo(req,"Annapurna Circuit");
   res.redirect("/annapurna");
 });
 
 // add paris
 app.post('/paris', (req, res) => {
-  updateUserWantToGo(req,"paris");
+  updateUserWantToGo(req,"Paris");
   res.redirect("/paris");
 });
 
 // add rome
 app.post('/rome', (req, res) => {
-  updateUserWantToGo(req,"rome");
+  updateUserWantToGo(req,"Rome");
   res.redirect("/rome");
 });
 
 // add bali
 app.post('/bali', (req, res) => {
-  updateUserWantToGo(req,"bali");
+  updateUserWantToGo(req,"Bali Island");
   res.redirect("/bali");
 });
 
 // add santorini
 app.post('/santorini', (req, res) => {
-  updateUserWantToGo(req,"santorini");
+  updateUserWantToGo(req,"Santorini Island");
   res.redirect("/santorini");
 });
-
-
 
 app.listen(3000);
