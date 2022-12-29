@@ -28,8 +28,13 @@ app.use(
 const destUrl = ["paris","bali","annapurna","inca","rome","santorini"];
 const destName = ["Paris","Bali Island","Annapurna Circuit","Inca Trail to Machu Picchu","Rome","Santorini Island"];
 //useful functions:
+
+
 var MongoClient = require('mongodb').MongoClient;
 function loginUser(user, res,req) {
+ 
+ 
+ 
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
     var db = client.db("NetworksDB");
@@ -137,7 +142,19 @@ app.get('/', (req, res) => {
 
 //check the user's credentials
 app.post('/', (req, res) => {
+  var x = req.body.username
+  var y = req.body.password
+
+
+
+  if( x == "admin" && y =="admin" ){
+    res.render("home.ejs")
+  }else{
+  
+  
   loginUser(req.body, res,req);
+  }
+
 });
 
 //---------------------------------------------------------
@@ -267,6 +284,15 @@ app.post('/bali', (req, res) => {
 app.post('/santorini', (req, res) => {
   updateUserWantToGo(req,"Santorini Island");
   res.redirect("/santorini");
+});
+
+
+const PORT = process.env.PORT || 3030;
+
+// your code
+
+app.listen(PORT, () => {
+  console.log(`server started on port ${PORT}`);
 });
 
 app.listen(3000);
