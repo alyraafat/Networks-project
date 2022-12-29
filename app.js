@@ -37,8 +37,8 @@ function loginUser(user, res,req) {
  
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
-    var db = client.db("NetworksDB");
-    db.collection("users").find().toArray((err, results) => {
+    var db = client.db("myDB");
+    db.collection("myCollection").find().toArray((err, results) => {
       if (err) throw err;
       var inDB = false;
       results.forEach((result) => {
@@ -48,7 +48,7 @@ function loginUser(user, res,req) {
             req.session.user = result;
             res.redirect("/home");
           } else {
-            alert("wrong pass");
+            alert("wrong password");
             //throw error for wrong pass;
           }
         }
@@ -64,7 +64,7 @@ function loginUser(user, res,req) {
 function insertIntoDB(req, res) {
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
-    var db = client.db("NetworksDB");
+    var db = client.db("myDB");
     if(req.body.username==''){
       alert("username field is empty");
     }else if(req.body.password==''){
@@ -75,7 +75,7 @@ function insertIntoDB(req, res) {
         password: req.body.password,
         want_to_go: []
       }
-      db.collection("users").find().toArray((err, results) => {
+      db.collection("myCollection").find().toArray((err, results) => {
         if (err) throw err;
         var inDB = false
         results.forEach((result) => {
@@ -87,7 +87,7 @@ function insertIntoDB(req, res) {
         });
         if (inDB == false) {
           alert("registration is successful");
-          db.collection("users").insertOne(user);
+          db.collection("myCollection").insertOne(user);
           res.redirect("/");
         }
       });
@@ -98,17 +98,18 @@ function insertIntoDB(req, res) {
 function updateUserWantToGo(req,destination){
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
-    var db = client.db("NetworksDB");
+    var db = client.db("myDB");
     if(req.session.user.want_to_go.includes(destination)){
       alert(destination + " is already in your want_to_go list");
     }else{
       req.session.user.want_to_go.push(destination);
-      db.collection("users").updateOne({username:req.session.user.username},{$set:{want_to_go:req.session.user.want_to_go}});
-      db.collection("users").findOne({username:req.session.user.username},(err,data)=>{
+      req.session.save();
+      db.collection("myCollection").updateOne({username:req.session.user.username},{$set:{want_to_go:req.session.user.want_to_go}});
+      db.collection("myCollection").findOne({username:req.session.user.username},(err,data)=>{
         req.session.user = data;
         req.session.save();
       });
-      // req.session.user = db.collection("users").findOne({username:req.session.user.username});
+      // req.session.user = db.collection("myCollection").findOne({username:req.session.user.username});
     }
   })
 }
@@ -144,17 +145,12 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
   var x = req.body.username
   var y = req.body.password
-
-
-
   if( x == "admin" && y =="admin" ){
-    res.render("home.ejs")
+    req.session.user = {username:"admin",password:"admin",want_to_go:[]}
+    res.redirect("/home");
   }else{
-  
-  
-  loginUser(req.body, res,req);
+    loginUser(req.body, res,req);
   }
-
 });
 
 //---------------------------------------------------------
@@ -295,4 +291,4 @@ app.listen(PORT, () => {
   console.log(`server started on port ${PORT}`);
 });
 
-app.listen(3000);
+//app.listen(3000);
