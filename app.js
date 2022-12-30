@@ -118,7 +118,8 @@ function searches(x){
   var temp = [];
 
   for(var i=0;i<destName.length;i++){
-    if(destUrl[i].toLowerCase().includes(x.toLowerCase()))
+    //console.log(destName[i].toLowerCase())
+    if(destName[i].toLowerCase().includes(x.toLowerCase()))
       temp.push(destName[i]);  
   }
   if(temp.length==0)
