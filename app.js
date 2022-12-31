@@ -27,14 +27,11 @@ app.use(
 );
 const destUrl = ["paris","bali","annapurna","inca","rome","santorini"];
 const destName = ["Paris","Bali Island","Annapurna Circuit","Inca Trail to Machu Picchu","Rome","Santorini Island"];
+var MongoClient = require('mongodb').MongoClient;
+
 //useful functions:
 
-
-var MongoClient = require('mongodb').MongoClient;
 function loginUser(user, res,req) {
- 
- 
- 
   MongoClient.connect(uri, (err, client) => {
     if (err) throw err;
     var db = client.db("myDB");
@@ -116,15 +113,17 @@ function updateUserWantToGo(req,destination){
 
 function searches(x){
   var temp = [];
+  var tempUrl = [];
 
   for(var i=0;i<destName.length;i++){
-    //console.log(destName[i].toLowerCase())
-    if(destName[i].toLowerCase().includes(x.toLowerCase()))
-      temp.push(destName[i]);  
+    if(destName[i].toLowerCase().includes(x.toLowerCase())){
+      temp.push(destName[i]);
+      tempUrl.push(destUrl[i]);  
+    } 
   }
   if(temp.length==0)
     alert("not found");
-  return temp;
+  return {t:temp,u:tempUrl};
 }
 
 function isAuthenticated(req,res,next){
@@ -246,7 +245,7 @@ app.get('/search',isAuthenticated,(req,res)=>{
 app.post('/search', (req, res) => {
   var x = req.body.Search;
   var temp =searches(x);
-  res.render("searchresults.ejs",{dests:temp,du:destUrl})
+  res.render("searchresults.ejs",{dests:temp["t"],du:temp["u"]})
 });
 
 //----------------------------------------------------------
