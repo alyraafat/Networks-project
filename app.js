@@ -147,7 +147,8 @@ app.post('/', (req, res) => {
   var x = req.body.username
   var y = req.body.password
   if( x == "admin" && y =="admin" ){
-    req.session.user = {username:"admin",password:"admin",want_to_go:[]}
+    req.session.user = {username:"admin",password:"admin",want_to_go:[]};
+    req.session.save();
     res.redirect("/home");
   }else{
     loginUser(req.body, res,req);
@@ -159,6 +160,9 @@ app.post('/', (req, res) => {
 //Register page:
 // go to register page
 app.get('/registration', (req, res) => {
+  if(req.session.user){
+    delete req.session.user;
+  }
   res.render("registration.ejs")
 });
 
