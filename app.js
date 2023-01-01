@@ -102,10 +102,10 @@ function updateUserWantToGo(req,destination){
       req.session.user.want_to_go.push(destination);
       req.session.save();
       db.collection("myCollection").updateOne({username:req.session.user.username},{$set:{want_to_go:req.session.user.want_to_go}});
-      db.collection("myCollection").findOne({username:req.session.user.username},(err,data)=>{
-        req.session.user = data;
-        req.session.save();
-      });
+      // db.collection("myCollection").findOne({username:req.session.user.username},(err,data)=>{
+      //   req.session.user = data;
+      //   req.session.save();
+      // });
       // req.session.user = db.collection("myCollection").findOne({username:req.session.user.username});
     }
   })
