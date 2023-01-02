@@ -46,12 +46,14 @@ function loginUser(user, res,req) {
             res.redirect("/home");
           } else {
             alert("wrong password");
+            res.redirect('/');
             //throw error for wrong pass;
           }
         }
       });
       if (inDB == false) {
         alert("user is not defined");
+        res.redirect('/');
         //throw error for not being registered
       }
     });
@@ -79,6 +81,7 @@ function insertIntoDB(req, res) {
           if (result.username == user.username) {
             //throw error 
             alert("user is already defined");
+            res.redirect('/registration');
             inDB = true;
           }
         });
